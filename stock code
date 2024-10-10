@@ -1,0 +1,138 @@
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+
+public class StockTradingPlatform {
+
+    private static final Map<String, Double> stockPrices = new HashMap<>();
+
+    private static final Map<String, Integer> portfolio = new HashMap<>();
+    private static double cash = 10000.0;
+
+    public static void main(String[] args) {
+
+        stockPrices.put("AAPL", generateRandomPrice());
+        stockPrices.put("GOOGL", generateRandomPrice());
+
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+
+        while (running) {
+            displayMenu();
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1 ->
+                    displayMarketData();
+                case 2 ->
+                    buyStock(scanner);
+                case 3 ->
+                    sellStock(scanner);
+                case 4 ->
+                    displayPortfolio();
+                case 5 ->
+                    running = false;
+                default ->
+                    System.out.println("Invalid option. Please try again.");
+            }
+
+            updateStockPrices();
+        }
+
+        scanner.close();
+        System.out.println("Thank you for using the stock trading platform!");
+    }
+
+    private static void displayMenu() {
+        System.out.println("\nStock Trading Platform");
+        System.out.println("1. View Market Data");
+        System.out.println("2. Buy Stock");
+        System.out.println("3. Sell Stock");
+        System.out.println("4. View Portfolio");
+        System.out.println("5. Exit");
+        System.out.print("Choose an option: ");
+    }
+
+    private static void displayMarketData() {
+        System.out.println("\nMarket Data:");
+        for (Map.Entry<String, Double> entry : stockPrices.entrySet()) {
+            System.out.printf("%s: $%.2f per share\n", entry.getKey(), entry.getValue());
+        }
+    }
+
+    private static void buyStock(Scanner scanner) {
+        System.out.print("\nEnter the stock symbol you want to buy (AAPL/GOOGL): ");
+        String symbol = scanner.next().toUpperCase();
+        if (!stockPrices.containsKey(symbol)) {
+            System.out.println("Invalid stock symbol.");
+            return;
+        }
+
+        System.out.print("Enter the number of shares to buy: ");
+        int shares = scanner.nextInt();
+        double price = stockPrices.get(symbol);
+        double cost = shares * price;
+
+        if (cost > cash) {
+            System.out.println("Insufficient funds. You have $" + cash);
+        } else {
+            cash -= cost;
+            portfolio.put(symbol, portfolio.getOrDefault(symbol, 0) + shares);
+            System.out.printf("You bought %d shares of %s for $%.2f. Remaining cash: $%.2f\n", shares, symbol, cost, cash);
+        }
+    }
+
+    private static void sellStock(Scanner scanner) {
+        System.out.print("\nEnter the stock symbol you want to sell (AAPL/GOOGL): ");
+        String symbol = scanner.next().toUpperCase();
+        if (!portfolio.containsKey(symbol) || portfolio.get(symbol) == 0) {
+            System.out.println("You don't own any shares of this stock.");
+            return;
+        }
+
+        System.out.print("Enter the number of shares to sell: ");
+        int shares = scanner.nextInt();
+        int ownedShares = portfolio.get(symbol);
+
+        if (shares > ownedShares) {
+            System.out.println("You don't have that many shares to sell.");
+        } else {
+            double price = stockPrices.get(symbol);
+            double revenue = shares * price;
+            portfolio.put(symbol, ownedShares - shares);
+            cash += revenue;
+            System.out.printf("You sold %d shares of %s for $%.2f. Current cash: $%.2f\n", shares, symbol, revenue, cash);
+        }
+    }
+
+    private static void displayPortfolio() {
+        System.out.println("\nYour Portfolio:");
+        double totalValue = cash;
+
+        for (Map.Entry<String, Integer> entry : portfolio.entrySet()) {
+            String symbol = entry.getKey();
+            int shares = entry.getValue();
+            double price = stockPrices.get(symbol);
+            double value = shares * price;
+            totalValue += value;
+
+            System.out.printf("%s: %d shares ($%.2f per share) = $%.2f\n", symbol, shares, price, value);
+        }
+
+        System.out.printf("Cash: $%.2f\n", cash);
+        System.out.printf("Total Portfolio Value: $%.2f\n", totalValue);
+    }
+
+    private static double generateRandomPrice() {
+        Random random = new Random();
+        return 100 + (900 * random.nextDouble());
+    }
+
+    private static void updateStockPrices() {
+        for (String symbol : stockPrices.keySet()) {
+            stockPrices.put(symbol, generateRandomPrice());
+        }
+    }
+}
