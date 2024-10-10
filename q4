@@ -1,0 +1,121 @@
+import random
+import datetime
+
+# Class representing a Room in the hotel
+class Room:
+    def __init__(self, room_number, room_type, price, is_available=True):
+        self.room_number = room_number
+        self.room_type = room_type
+        self.price = price
+        self.is_available = is_available
+
+# Class representing the Hotel's Room Inventory and Booking System
+class Hotel:
+    def __init__(self, name):
+        self.name = name
+        self.rooms = self.create_rooms()
+        self.reservations = []
+
+    # Create sample rooms for the hotel
+    def create_rooms(self):
+        rooms = []
+        room_types = [('Single', 100), ('Double', 150), ('Suite', 300)]
+        for i in range(1, 31):
+            room_type, price = random.choice(room_types)
+            rooms.append(Room(room_number=i, room_type=room_type, price=price))
+        return rooms
+
+    # Search for available rooms by room type
+    def search_rooms(self, room_type):
+        available_rooms = [room for room in self.rooms if room.room_type == room_type and room.is_available]
+        if available_rooms:
+            print(f"\nAvailable {room_type} rooms:")
+            for room in available_rooms:
+                print(f"Room {room.room_number} - ${room.price}/night")
+        else:
+            print(f"\nNo available {room_type} rooms.")
+
+        return available_rooms
+
+    # Book a room based on availability
+    def make_reservation(self, customer_name, room_type, nights):
+        available_rooms = self.search_rooms(room_type)
+        if available_rooms:
+            selected_room = available_rooms[0]  # Automatically pick the first available room
+            total_cost = selected_room.price * nights
+
+            # Simulate payment
+            print(f"\nThe total cost for {nights} night(s) is ${total_cost}.")
+            if self.process_payment(total_cost):
+                # Mark the room as unavailable and create a reservation
+                selected_room.is_available = False
+                reservation = {
+                    "customer_name": customer_name,
+                    "room_number": selected_room.room_number,
+                    "room_type": selected_room.room_type,
+                    "nights": nights,
+                    "total_cost": total_cost,
+                    "reservation_date": datetime.date.today()
+                }
+                self.reservations.append(reservation)
+                print(f"Reservation successful! You have booked Room {selected_room.room_number}.")
+            else:
+                print("Payment failed. Reservation not made.")
+        else:
+            print("No available rooms to book.")
+
+    # Simulate payment processing
+    def process_payment(self, amount):
+        print("\nProcessing payment...")
+        card_number = input("Enter your card number (16 digits): ")
+        if len(card_number) == 16 and card_number.isdigit():
+            print(f"Payment of ${amount} was successful.")
+            return True
+        else:
+            print("Invalid card number. Payment failed.")
+            return False
+
+    # View all reservations
+    def view_reservations(self):
+        if self.reservations:
+            print("\nCurrent Reservations:")
+            for res in self.reservations:
+                print(f"Customer: {res['customer_name']}, Room: {res['room_number']} ({res['room_type']}), "
+                      f"Nights: {res['nights']}, Total Cost: ${res['total_cost']}, "
+                      f"Reservation Date: {res['reservation_date']}")
+        else:
+            print("\nNo reservations found.")
+
+# Main function to interact with the Hotel Reservation System
+def hotel_reservation_system():
+    hotel = Hotel("Sunset Paradise Hotel")
+    running = True
+
+    while running:
+        print("\nWelcome to the Hotel Reservation System")
+        print("1. Search for Available Rooms")
+        print("2. Make a Reservation")
+        print("3. View Reservation Details")
+        print("4. Exit")
+
+        choice = input("Please choose an option: ")
+
+        if choice == '1':
+            room_type = input("Enter room type to search (Single/Double/Suite): ")
+            hotel.search_rooms(room_type.capitalize())
+        elif choice == '2':
+            customer_name = input("Enter your name: ")
+            room_type = input("Enter room type (Single/Double/Suite): ")
+            nights = int(input("How many nights will you be staying? "))
+            hotel.make_reservation(customer_name, room_type.capitalize(), nights)
+        elif choice == '3':
+            hotel.view_reservations()
+        elif choice == '4':
+            running = False
+            print("Thank you for using the Hotel Reservation System!")
+        else:
+            print("Invalid option, please try again.")
+
+# Run the system
+if __name__ == "__main__":
+    hotel_reservation_system()
