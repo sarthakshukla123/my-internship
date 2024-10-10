@@ -1,0 +1,72 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class GradeCalculator {
+
+    public static void main(String[] args) {
+
+        ArrayList<Double> grades = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
+        String moreGrades;
+
+        do {
+            System.out.print("Enter student grade (0-100): ");
+            double grade = scanner.nextDouble();
+
+            while (grade < 0 || grade > 100) {
+                System.out.print("Invalid input. Enter grade between 0 and 100: ");
+                grade = scanner.nextDouble();
+            }
+            grades.add(grade);
+
+            System.out.print("Do you want to enter another grade? (yes/no): ");
+            moreGrades = scanner.next();
+
+        } while (moreGrades.equalsIgnoreCase("yes"));
+
+        if (grades.size() > 0) {
+
+            double average = calculateAverage(grades);
+            double highest = findHighest(grades);
+            double lowest = findLowest(grades);
+
+            System.out.println("\nGrades Summary:");
+            System.out.println("Average Score: " + average);
+            System.out.println("Highest Score: " + highest);
+            System.out.println("Lowest Score: " + lowest);
+        } else 
+        {
+            System.out.println("No grades entered.");
+        }
+
+        scanner.close();
+    }
+
+    public static double calculateAverage(ArrayList<Double> grades) {
+        double sum = 0;
+        for (double grade : grades) {
+            sum += grade;
+        }
+        return sum / grades.size();
+    }
+
+    public static double findHighest(ArrayList<Double> grades) {
+        double highest = grades.get(0);
+        for (double grade : grades) {
+            if (grade > highest) {
+                highest = grade;
+            }
+        }
+        return highest;
+    }
+
+    public static double findLowest(ArrayList<Double> grades) {
+        double lowest = grades.get(0);
+        for (double grade : grades) {
+            if (grade < lowest) {
+                lowest = grade;
+            }
+        }
+        return lowest;
+    }
+}
